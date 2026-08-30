@@ -31,23 +31,41 @@
   .brand{font-weight:800;font-size:1.02rem;color:var(--ink);letter-spacing:-.01em;
     text-decoration:none;white-space:nowrap}
   .navlinks{display:flex;gap:8px}
-  .navlinks a{font-size:.84rem;font-weight:700;color:var(--ink-dim);text-decoration:none;
+  .navlinks a,.navlinks button{font:inherit;font-size:.84rem;font-weight:700;color:var(--ink-dim);
+    text-decoration:none;background:none;border:none;cursor:pointer;
     padding:7px 14px;border-radius:999px;transition:background .15s,color .15s}
-  .navlinks a:hover{background:var(--accent-soft);color:var(--accent)}
+  .navlinks a:hover,.navlinks button:hover{background:var(--accent-soft);color:var(--accent)}
+
+  /* ---- about modal ---- */
+  .modal-backdrop{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
+    padding:24px;background:rgb(10 12 20 / .5);backdrop-filter:blur(4px);
+    opacity:1;transition:opacity .18s}
+  .modal-backdrop[hidden]{display:none}
+  .modal-card{position:relative;width:100%;max-width:340px;background:var(--paper);border:1px solid var(--line);
+    border-radius:20px;padding:32px 28px 28px;text-align:center;
+    box-shadow:0 24px 48px -12px rgb(10 12 20 / .35);
+    animation:modal-in .18s ease}
+  @keyframes modal-in{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+  .modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:999px;border:none;
+    background:var(--accent-soft);color:var(--ink-dim);display:flex;align-items:center;justify-content:center;
+    cursor:pointer}
+  .modal-close svg{width:15px;height:15px}
+  .modal-close:hover{color:var(--accent)}
+  .modal-avatar{width:52px;height:52px;margin:0 auto 16px;border-radius:16px;background:var(--accent);
+    color:#fff;font-weight:800;font-size:1.3rem;display:flex;align-items:center;justify-content:center}
+  .modal-card h3{margin:0 0 8px;font-size:1.05rem;font-weight:800;letter-spacing:-.01em}
+  .modal-card p{margin:0;color:var(--ink-dim);font-size:.9rem;line-height:1.6}
+  @media (prefers-reduced-motion:reduce){
+    .modal-card{animation:none}
+  }
 
   /* ---- hero ---- */
   .hero{padding:72px 0 48px;text-align:center}
   .accent-bar{width:34px;height:5px;border-radius:999px;background:var(--accent);margin:0 auto 22px}
-  h1{font-weight:800;font-size:clamp(1.9rem,4.4vw,2.5rem);line-height:1.32;margin:0 0 14px;
-    letter-spacing:-.02em}
+  h1{font-weight:800;font-size:clamp(1.1rem,5.6vw,2.5rem);line-height:1.32;margin:0 0 14px;
+    letter-spacing:-.02em;white-space:nowrap}
   h1 em{font-style:normal;color:var(--accent)}
   .lede{margin:0 auto;max-width:34em;color:var(--ink-dim);font-size:1rem}
-  .hero-cta{display:inline-flex;align-items:center;gap:8px;margin-top:28px;font-weight:700;font-size:.95rem;
-    background:var(--accent);color:#fff;text-decoration:none;padding:13px 26px;border-radius:999px;
-    box-shadow:0 12px 24px -8px color-mix(in srgb,var(--accent) 60%,transparent);
-    transition:transform .15s,box-shadow .15s}
-  .hero-cta:hover{transform:translateY(-2px)}
-  .hero-cta:active{transform:translateY(0) scale(.98)}
 
   /* ---- apps section ---- */
   main{padding-bottom:72px}
@@ -85,11 +103,11 @@
 
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
-    .card,.hero-cta,.card .go svg{transition:none}
+    .card,.card .go svg{transition:none}
   }
   @media (max-width:640px){
     .hero{padding:52px 0 40px}
-    .navlinks a{padding:6px 11px;font-size:.8rem}
+    .navlinks a,.navlinks button{padding:6px 11px;font-size:.8rem}
   }
 </style>
 </head>
@@ -100,7 +118,7 @@
     <a class="brand" href="#top">고전문학 공부방</a>
     <div class="navlinks">
       <a href="#apps">앱 모음</a>
-      <a href="https://github.com/yerang-k" target="_blank" rel="noopener">만든 이</a>
+      <button type="button" id="btn-about">만든 이</button>
     </div>
   </div>
 </nav>
@@ -108,12 +126,19 @@
 <div id="top" class="hero">
   <div class="wrap">
     <div class="accent-bar" aria-hidden="true"></div>
-    <h1>고전문학, <em>게임처럼</em><br>공부하기</h1>
+    <h1>고전문학, <em>게임처럼</em> 공부하기</h1>
     <p class="lede">수능 고전문학에 자주 나오는 어휘와 시어를 반복 연습으로 익히는 학습 앱 모음이에요.</p>
-    <a class="hero-cta" href="#apps">
-      앱 둘러보기
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
-    </a>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="about-modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <button type="button" class="modal-close" id="about-close" aria-label="닫기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="modal-avatar">Y</div>
+    <h3 id="about-title">KIMYERANG</h3>
+    <p>국어 교사입니다. 수업에 쓰려고 이 앱들을 만들었어요.</p>
   </div>
 </div>
 
@@ -157,6 +182,14 @@ const APPS = [
     url: 'https://script.google.com/macros/s/AKfycbzKbM1NlKXHZT2Tdu6XQ8cQpAUbzcKt4BSj-wgZgmh46-JbEVAtVCKjOh_ncUWsj6OkZA/exec'
   }
 ];
+
+const aboutModal = document.getElementById('about-modal');
+function openAbout(){ aboutModal.hidden = false; document.body.style.overflow = 'hidden'; }
+function closeAbout(){ aboutModal.hidden = true; document.body.style.overflow = ''; }
+document.getElementById('btn-about').addEventListener('click', openAbout);
+document.getElementById('about-close').addEventListener('click', closeAbout);
+aboutModal.addEventListener('click', e => { if (e.target === aboutModal) closeAbout(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !aboutModal.hidden) closeAbout(); });
 
 document.getElementById('app-count').textContent = APPS.length + '개';
 
