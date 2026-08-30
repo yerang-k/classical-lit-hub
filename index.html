@@ -4,14 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>고전문학 공부방</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" as="style" crossorigin
   href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <style>
   :root{
-    --bg:#f7f1e3; --paper:#fffdf7; --ink:#241f18; --ink-dim:#8a7d68;
-    --line:#e6dcc4; --accent:#c1442c; --accent-dark:#9c331e; --accent-soft:#f7e1d9;
+    --bg:#f6f7fb; --paper:#ffffff; --ink:#14161f; --ink-dim:#6b7080;
+    --line:#e7e9f2; --accent:#3348d1; --accent-dark:#26379e; --accent-soft:#e8ecfc;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0b0d14; --paper:#12141f; --ink:#eef0f8; --ink-dim:#8d92a8;
+      --line:#232636; --accent:#6b82ff; --accent-dark:#8fa0ff; --accent-soft:#1b2140;
+    }
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -21,59 +25,56 @@
   .wrap{max-width:920px;margin:0 auto;padding-inline:24px}
 
   /* ---- nav ---- */
-  nav.topbar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);
-    backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav.topbar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 82%,transparent);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
   nav.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
-  .brand{font-family:'Noto Serif KR',serif;font-weight:800;font-size:1.05rem;color:var(--ink);
+  .brand{font-weight:800;font-size:1.02rem;color:var(--ink);letter-spacing:-.01em;
     text-decoration:none;white-space:nowrap}
   .navlinks{display:flex;gap:8px}
   .navlinks a{font-size:.84rem;font-weight:700;color:var(--ink-dim);text-decoration:none;
     padding:7px 14px;border-radius:999px;transition:background .15s,color .15s}
-  .navlinks a:hover{background:var(--accent-soft);color:var(--accent-dark)}
+  .navlinks a:hover{background:var(--accent-soft);color:var(--accent)}
 
   /* ---- hero ---- */
-  .hero{padding:64px 0 44px;text-align:center;position:relative}
-  .seal{position:absolute;top:18px;right:calc(50% - 210px);width:46px;height:46px;background:var(--accent);
-    border-radius:10px;transform:rotate(-6deg);display:flex;align-items:center;justify-content:center;
-    box-shadow:0 8px 18px rgb(193 68 44 / .28)}
-  .seal span{font-family:'Noto Serif KR',serif;color:#fff;font-weight:900;font-size:.82rem;
-    writing-mode:vertical-rl;letter-spacing:.05em}
-  h1{font-family:'Noto Serif KR',serif;font-weight:900;font-size:clamp(1.9rem,4.6vw,2.6rem);
-    line-height:1.35;margin:0 0 14px;letter-spacing:-.01em}
+  .hero{padding:72px 0 48px;text-align:center}
+  .accent-bar{width:34px;height:5px;border-radius:999px;background:var(--accent);margin:0 auto 22px}
+  h1{font-weight:800;font-size:clamp(1.9rem,4.4vw,2.5rem);line-height:1.32;margin:0 0 14px;
+    letter-spacing:-.02em}
   h1 em{font-style:normal;color:var(--accent)}
-  .lede{margin:0 auto;max-width:36em;color:var(--ink-dim);font-size:1rem}
-  .hero-cta{display:inline-flex;align-items:center;gap:8px;margin-top:26px;font-weight:800;font-size:.95rem;
+  .lede{margin:0 auto;max-width:34em;color:var(--ink-dim);font-size:1rem}
+  .hero-cta{display:inline-flex;align-items:center;gap:8px;margin-top:28px;font-weight:700;font-size:.95rem;
     background:var(--accent);color:#fff;text-decoration:none;padding:13px 26px;border-radius:999px;
-    box-shadow:0 10px 24px rgb(193 68 44 / .3);transition:transform .15s,box-shadow .15s}
-  .hero-cta:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgb(193 68 44 / .38)}
+    box-shadow:0 12px 24px -8px color-mix(in srgb,var(--accent) 60%,transparent);
+    transition:transform .15s,box-shadow .15s}
+  .hero-cta:hover{transform:translateY(-2px)}
   .hero-cta:active{transform:translateY(0) scale(.98)}
 
   /* ---- apps section ---- */
   main{padding-bottom:72px}
   .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 18px}
-  .section-head h2{font-size:1.15rem;font-weight:800;margin:0}
+  .section-head h2{font-size:1.1rem;font-weight:800;margin:0;letter-spacing:-.01em}
   .section-head span{font-size:.82rem;color:var(--ink-dim)}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
 
   .card{position:relative;display:flex;flex-direction:column;background:var(--paper);
-    border:1px solid var(--line);border-radius:20px;padding:24px;text-decoration:none;color:inherit;
-    box-shadow:0 2px 12px rgb(36 31 24 / .04);transition:transform .18s,box-shadow .18s,border-color .18s}
-  .card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgb(36 31 24 / .1);border-color:var(--accent)}
+    border:1px solid var(--line);border-radius:18px;padding:24px;text-decoration:none;color:inherit;
+    box-shadow:0 1px 2px rgb(20 22 31 / .04);transition:transform .18s,box-shadow .18s,border-color .18s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 20px 36px -12px rgb(20 22 31 / .16);border-color:var(--accent)}
   .card:active{transform:translateY(-1px) scale(.99)}
-  .icon-badge{width:44px;height:44px;border-radius:12px;background:var(--accent-soft);
+  .icon-badge{width:42px;height:42px;border-radius:12px;background:var(--accent);
     display:flex;align-items:center;justify-content:center;margin-bottom:16px;flex:0 0 auto}
-  .icon-badge svg{width:22px;height:22px;stroke:var(--accent-dark)}
-  .card .tag{position:absolute;top:22px;right:22px;font-size:.7rem;font-weight:800;color:var(--accent-dark);
+  .icon-badge svg{width:21px;height:21px;stroke:#fff}
+  .card .tag{position:absolute;top:22px;right:22px;font-size:.7rem;font-weight:700;color:var(--accent);
     background:var(--accent-soft);padding:4px 11px;border-radius:999px}
-  .card h3{margin:0 0 6px;font-size:1.08rem;font-weight:800}
+  .card h3{margin:0 0 6px;font-size:1.06rem;font-weight:800;letter-spacing:-.01em}
   .card p{margin:0;color:var(--ink-dim);font-size:.88rem;flex:1}
-  .card .go{margin-top:18px;font-size:.84rem;font-weight:800;color:var(--accent-dark);
+  .card .go{margin-top:18px;font-size:.84rem;font-weight:700;color:var(--accent);
     display:flex;align-items:center;gap:5px}
   .card .go svg{width:14px;height:14px;transition:transform .15s}
   .card:hover .go svg{transform:translateX(3px)}
 
   .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;
-    border:1.5px dashed var(--line);border-radius:20px;padding:24px;text-align:center;color:var(--ink-dim)}
+    border:1.5px dashed var(--line);border-radius:18px;padding:24px;text-align:center;color:var(--ink-dim)}
   .placeholder .icon-badge{background:transparent;border:1.5px dashed var(--line)}
   .placeholder .icon-badge svg{stroke:var(--ink-dim)}
   .placeholder b{display:block;color:var(--ink);font-size:.98rem;font-weight:800;margin-bottom:4px}
@@ -87,9 +88,7 @@
     .card,.hero-cta,.card .go svg{transition:none}
   }
   @media (max-width:640px){
-    .hero{padding:48px 0 36px}
-    .seal{right:calc(50% - 140px);top:6px;width:38px;height:38px}
-    .seal span{font-size:.7rem}
+    .hero{padding:52px 0 40px}
     .navlinks a{padding:6px 11px;font-size:.8rem}
   }
 </style>
@@ -107,10 +106,10 @@
 </nav>
 
 <div id="top" class="hero">
-  <div class="wrap" style="position:relative">
-    <div class="seal" aria-hidden="true"><span>古典</span></div>
-    <h1>옛말이 <em>술술</em> 읽히는<br>그날까지</h1>
-    <p class="lede">수능 고전문학에 자주 나오는 어휘와 시어를 게임처럼 반복해서 익히는 연습 페이지예요.</p>
+  <div class="wrap">
+    <div class="accent-bar" aria-hidden="true"></div>
+    <h1>고전문학, <em>게임처럼</em><br>공부하기</h1>
+    <p class="lede">수능 고전문학에 자주 나오는 어휘와 시어를 반복 연습으로 익히는 학습 앱 모음이에요.</p>
     <a class="hero-cta" href="#apps">
       앱 둘러보기
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
