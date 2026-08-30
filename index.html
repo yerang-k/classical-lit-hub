@@ -59,6 +59,27 @@
     .modal-card{animation:none}
   }
 
+  /* ---- inline app modal(iframe) ---- */
+  .app-modal-backdrop{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;
+    padding:20px;background:rgb(10 12 20 / .6);backdrop-filter:blur(4px)}
+  .app-modal-backdrop[hidden]{display:none}
+  .app-modal{position:relative;width:100%;max-width:960px;height:min(88vh,900px);background:var(--paper);
+    border-radius:20px;overflow:hidden;box-shadow:0 24px 60px -12px rgb(10 12 20 / .4);
+    animation:modal-in .18s ease}
+  .app-modal iframe{width:100%;height:100%;border:none;display:block}
+  .app-modal-close{position:absolute;top:12px;right:12px;z-index:1;width:34px;height:34px;border-radius:999px;
+    border:none;background:rgb(20 22 31 / .55);color:#fff;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;backdrop-filter:blur(6px)}
+  .app-modal-close svg{width:16px;height:16px}
+  .app-modal-close:hover{background:var(--accent)}
+  @media (max-width:640px){
+    .app-modal-backdrop{padding:0}
+    .app-modal{max-width:none;width:100%;height:100%;border-radius:0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .app-modal{animation:none}
+  }
+
   /* ---- hero ---- */
   .hero{padding:72px 0 48px;text-align:center}
   .accent-bar{width:34px;height:5px;border-radius:999px;background:var(--accent);margin:0 auto 22px}
@@ -142,6 +163,15 @@
   </div>
 </div>
 
+<div class="app-modal-backdrop" id="app-modal" hidden>
+  <div class="app-modal" role="dialog" aria-modal="true">
+    <button type="button" class="app-modal-close" id="app-modal-close" aria-label="닫기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <iframe id="app-modal-frame" src="about:blank" title="앱 미리보기"></iframe>
+  </div>
+</div>
+
 <main class="wrap">
   <section id="apps">
     <div class="section-head">
@@ -187,7 +217,8 @@ const APPS = [
     icon: 'book',
     title: '고전문학 만화',
     desc: '고전문학 작품을 만화로 바로 넘겨보는 뷰어예요.',
-    url: 'https://yerang-k.github.io/classical-lit-comics/'
+    url: 'https://yerang-k.github.io/classical-lit-comics/',
+    inline: true
   }
 ];
 
@@ -201,8 +232,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !aboutModa
 
 document.getElementById('app-count').textContent = APPS.length + '개';
 
-document.getElementById('app-grid').innerHTML = APPS.map(a => `
-  <a class="card" href="${a.url}" target="_blank" rel="noopener">
+document.getElementById('app-grid').innerHTML = APPS.map((a, i) => `
+  <a class="card" href="${a.url}" ${a.inline ? `data-app-index="${i}"` : `target="_blank" rel="noopener"`}>
     <span class="tag">${a.tag}</span>
     <div class="icon-badge">${ICONS[a.icon]}</div>
     <h3>${a.title}</h3>
@@ -216,6 +247,28 @@ document.getElementById('app-grid').innerHTML = APPS.map(a => `
     <p>완성되면 이 자리에 추가할게요</p>
   </div>
 `;
+
+const appModal = document.getElementById('app-modal');
+const appModalFrame = document.getElementById('app-modal-frame');
+function openAppModal(url){
+  appModalFrame.src = url;
+  appModal.hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+function closeAppModal(){
+  appModal.hidden = true;
+  appModalFrame.src = 'about:blank';
+  document.body.style.overflow = '';
+}
+document.getElementById('app-grid').addEventListener('click', e => {
+  const card = e.target.closest('[data-app-index]');
+  if (!card) return;
+  e.preventDefault();
+  openAppModal(APPS[Number(card.dataset.appIndex)].url);
+});
+document.getElementById('app-modal-close').addEventListener('click', closeAppModal);
+appModal.addEventListener('click', e => { if (e.target === appModal) closeAppModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !appModal.hidden) closeAppModal(); });
 </script>
 
 </body>
