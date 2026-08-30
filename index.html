@@ -4,61 +4,127 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>고전문학 공부방</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <style>
   :root{
-    --bg:#faf6ee; --paper:#fffdf8; --ink:#2b2419; --ink-dim:#7a6f5c;
-    --line:#e7ddc8; --accent:#a8562f; --accent-soft:#f3e2d3;
+    --bg:#f7f1e3; --paper:#fffdf7; --ink:#241f18; --ink-dim:#8a7d68;
+    --line:#e6dcc4; --accent:#c1442c; --accent-dark:#9c331e; --accent-soft:#f7e1d9;
   }
   *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
   body{margin:0;background:var(--bg);color:var(--ink);
-    font-family:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
-    line-height:1.6}
-  header{padding:56px 20px 36px;text-align:center;background:
-    radial-gradient(ellipse at top,#fff 0%,var(--bg) 70%)}
-  header h1{margin:0 0 10px;font-size:1.9rem;font-weight:900;letter-spacing:-.5px}
-  header h1 span{color:var(--accent)}
-  header p{margin:0;color:var(--ink-dim);font-size:.98rem}
-  main{max-width:720px;margin:0 auto;padding:0 20px 60px}
-  section{margin-top:40px}
-  section > h2{font-size:1.05rem;font-weight:800;margin:0 0 16px;
-    display:flex;align-items:center;gap:8px}
-  section > h2::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent)}
-  .grid{display:grid;gap:16px}
-  .card{display:block;background:var(--paper);border:1px solid var(--line);
-    border-radius:16px;padding:22px 22px 20px;text-decoration:none;color:inherit;
-    box-shadow:0 2px 10px #2b241908;transition:transform .15s,box-shadow .15s}
-  .card:active{transform:scale(.985)}
-  .card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
-  .card-top .tag{font-size:.72rem;font-weight:800;color:var(--accent);
-    background:var(--accent-soft);padding:3px 10px;border-radius:999px}
-  .card h3{margin:0;font-size:1.08rem;font-weight:800}
-  .card p{margin:6px 0 0;color:var(--ink-dim);font-size:.9rem}
-  .card .go{margin-top:14px;font-size:.85rem;font-weight:700;color:var(--accent)}
-  .placeholder{border:1.5px dashed var(--line);border-radius:16px;padding:26px 22px;
-    text-align:center;color:var(--ink-dim);font-size:.9rem;background:transparent}
-  .placeholder b{display:block;color:var(--ink);font-size:1rem;margin-bottom:4px}
-  footer{text-align:center;padding:30px 20px 50px;color:var(--ink-dim);font-size:.8rem}
+    font-family:'Pretendard','Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding-inline:24px}
+
+  /* ---- nav ---- */
+  nav.topbar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .brand{font-family:'Noto Serif KR',serif;font-weight:800;font-size:1.05rem;color:var(--ink);
+    text-decoration:none;white-space:nowrap}
+  .navlinks{display:flex;gap:8px}
+  .navlinks a{font-size:.84rem;font-weight:700;color:var(--ink-dim);text-decoration:none;
+    padding:7px 14px;border-radius:999px;transition:background .15s,color .15s}
+  .navlinks a:hover{background:var(--accent-soft);color:var(--accent-dark)}
+
+  /* ---- hero ---- */
+  .hero{padding:64px 0 44px;text-align:center;position:relative}
+  .seal{position:absolute;top:18px;right:calc(50% - 210px);width:46px;height:46px;background:var(--accent);
+    border-radius:10px;transform:rotate(-6deg);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 18px rgb(193 68 44 / .28)}
+  .seal span{font-family:'Noto Serif KR',serif;color:#fff;font-weight:900;font-size:.82rem;
+    writing-mode:vertical-rl;letter-spacing:.05em}
+  h1{font-family:'Noto Serif KR',serif;font-weight:900;font-size:clamp(1.9rem,4.6vw,2.6rem);
+    line-height:1.35;margin:0 0 14px;letter-spacing:-.01em}
+  h1 em{font-style:normal;color:var(--accent)}
+  .lede{margin:0 auto;max-width:36em;color:var(--ink-dim);font-size:1rem}
+  .hero-cta{display:inline-flex;align-items:center;gap:8px;margin-top:26px;font-weight:800;font-size:.95rem;
+    background:var(--accent);color:#fff;text-decoration:none;padding:13px 26px;border-radius:999px;
+    box-shadow:0 10px 24px rgb(193 68 44 / .3);transition:transform .15s,box-shadow .15s}
+  .hero-cta:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgb(193 68 44 / .38)}
+  .hero-cta:active{transform:translateY(0) scale(.98)}
+
+  /* ---- apps section ---- */
+  main{padding-bottom:72px}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 18px}
+  .section-head h2{font-size:1.15rem;font-weight:800;margin:0}
+  .section-head span{font-size:.82rem;color:var(--ink-dim)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+
+  .card{position:relative;display:flex;flex-direction:column;background:var(--paper);
+    border:1px solid var(--line);border-radius:20px;padding:24px;text-decoration:none;color:inherit;
+    box-shadow:0 2px 12px rgb(36 31 24 / .04);transition:transform .18s,box-shadow .18s,border-color .18s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgb(36 31 24 / .1);border-color:var(--accent)}
+  .card:active{transform:translateY(-1px) scale(.99)}
+  .icon-badge{width:44px;height:44px;border-radius:12px;background:var(--accent-soft);
+    display:flex;align-items:center;justify-content:center;margin-bottom:16px;flex:0 0 auto}
+  .icon-badge svg{width:22px;height:22px;stroke:var(--accent-dark)}
+  .card .tag{position:absolute;top:22px;right:22px;font-size:.7rem;font-weight:800;color:var(--accent-dark);
+    background:var(--accent-soft);padding:4px 11px;border-radius:999px}
+  .card h3{margin:0 0 6px;font-size:1.08rem;font-weight:800}
+  .card p{margin:0;color:var(--ink-dim);font-size:.88rem;flex:1}
+  .card .go{margin-top:18px;font-size:.84rem;font-weight:800;color:var(--accent-dark);
+    display:flex;align-items:center;gap:5px}
+  .card .go svg{width:14px;height:14px;transition:transform .15s}
+  .card:hover .go svg{transform:translateX(3px)}
+
+  .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:1.5px dashed var(--line);border-radius:20px;padding:24px;text-align:center;color:var(--ink-dim)}
+  .placeholder .icon-badge{background:transparent;border:1.5px dashed var(--line)}
+  .placeholder .icon-badge svg{stroke:var(--ink-dim)}
+  .placeholder b{display:block;color:var(--ink);font-size:.98rem;font-weight:800;margin-bottom:4px}
+  .placeholder p{margin:0;font-size:.86rem}
+
+  footer{text-align:center;padding:32px 20px 48px;color:var(--ink-dim);font-size:.78rem;
+    border-top:1px solid var(--line)}
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .card,.hero-cta,.card .go svg{transition:none}
+  }
+  @media (max-width:640px){
+    .hero{padding:48px 0 36px}
+    .seal{right:calc(50% - 140px);top:6px;width:38px;height:38px}
+    .seal span{font-size:.7rem}
+    .navlinks a{padding:6px 11px;font-size:.8rem}
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>수능 <span>고전문학</span> 공부방</h1>
-  <p>고전어휘 · 시어 매핑을 연습하는 작은 앱 모음</p>
-</header>
-
-<main>
-  <section>
-    <h2>지금 바로 해보기</h2>
-    <div class="grid" id="app-grid"></div>
-  </section>
-
-  <section>
-    <h2>준비 중</h2>
-    <div class="placeholder">
-      <b>새로운 앱을 만들고 있어요</b>
-      완성되면 이 자리에 추가할게요
+<nav class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top">고전문학 공부방</a>
+    <div class="navlinks">
+      <a href="#apps">앱 모음</a>
+      <a href="https://github.com/yerang-k" target="_blank" rel="noopener">만든 이</a>
     </div>
+  </div>
+</nav>
+
+<div id="top" class="hero">
+  <div class="wrap" style="position:relative">
+    <div class="seal" aria-hidden="true"><span>古典</span></div>
+    <h1>옛말이 <em>술술</em> 읽히는<br>그날까지</h1>
+    <p class="lede">수능 고전문학에 자주 나오는 어휘와 시어를 게임처럼 반복해서 익히는 연습 페이지예요.</p>
+    <a class="hero-cta" href="#apps">
+      앱 둘러보기
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+    </a>
+  </div>
+</div>
+
+<main class="wrap">
+  <section id="apps">
+    <div class="section-head">
+      <h2>앱 모음</h2>
+      <span id="app-count"></span>
+    </div>
+    <div class="grid" id="app-grid"></div>
   </section>
 </main>
 
@@ -69,31 +135,47 @@
 </footer>
 
 <script>
+const ICONS = {
+  stopwatch: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 13l3-2"/><path d="M9 2h6"/><path d="M12 2v3"/></svg>',
+  link: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="7" cy="17" r="3.2"/><circle cx="17" cy="7" r="3.2"/><path d="M9.3 14.7l5.4-5.4"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>'
+};
+const ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
 const APPS = [
   {
     tag: '게임',
+    icon: 'stopwatch',
     title: '수능 고전어휘 타임어택',
-    desc: '떨어지는 고전어의 뜻을 제한 시간 안에 골라내는 게임',
+    desc: '떨어지는 고전어의 뜻을 제한 시간 안에 골라내는 게임이에요.',
     url: 'https://yerang-k.github.io/classical-vocab-timeattack/'
   },
   {
     tag: '학습',
+    icon: 'link',
     title: '<보기> 키워드 매핑 훈련',
-    desc: '<보기>의 키워드와 원문 시어를 클릭으로 연결하는 연습',
+    desc: '<보기>의 키워드와 원문 시어를 클릭으로 연결하는 연습이에요.',
     url: 'https://script.google.com/macros/s/AKfycbzKbM1NlKXHZT2Tdu6XQ8cQpAUbzcKt4BSj-wgZgmh46-JbEVAtVCKjOh_ncUWsj6OkZA/exec'
   }
 ];
 
+document.getElementById('app-count').textContent = APPS.length + '개';
+
 document.getElementById('app-grid').innerHTML = APPS.map(a => `
   <a class="card" href="${a.url}" target="_blank" rel="noopener">
-    <div class="card-top">
-      <h3>${a.title}</h3>
-      <span class="tag">${a.tag}</span>
-    </div>
+    <span class="tag">${a.tag}</span>
+    <div class="icon-badge">${ICONS[a.icon]}</div>
+    <h3>${a.title}</h3>
     <p>${a.desc}</p>
-    <div class="go">열어보기 →</div>
+    <div class="go">열어보기 ${ARROW}</div>
   </a>
-`).join('');
+`).join('') + `
+  <div class="placeholder">
+    <div class="icon-badge">${ICONS.plus}</div>
+    <b>새 프로젝트 준비 중</b>
+    <p>완성되면 이 자리에 추가할게요</p>
+  </div>
+`;
 </script>
 
 </body>
