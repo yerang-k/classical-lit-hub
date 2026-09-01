@@ -352,38 +352,52 @@ btnAdmin.addEventListener('click', e => {
   renderApps();
 });
 
+let lockBusy = false;
 async function toggleLock(title){
+  if (lockBusy){ showToast('처리 중이에요. 잠시만 기다려주세요.'); return; }
   const pat = localStorage.getItem(PAT_KEY);
   if (!pat){ showToast('토큰이 없어요. 관리자 모드를 다시 켜주세요.'); return; }
-  const willLock = !LOCKED.includes(title);
-  showToast(willLock ? '잠그는 중...' : '여는 중...');
+  lockBusy = true;
+  showToast('처리 중...');
+  const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${REPO_PATH}`;
   try{
-    const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${REPO_PATH}`;
-    const getRes = await fetch(`${apiUrl}?ref=${REPO_BRANCH}`, {
-      headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github+json' }
-    });
-    if (!getRes.ok) throw new Error('READ_' + getRes.status);
-    const fileData = await getRes.json();
-    const raw = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
-    const newLocked = willLock ? [...LOCKED, title] : LOCKED.filter(t => t !== title);
-    const newLine = "let LOCKED = " + JSON.stringify(newLocked) + ";";
-    const updated = raw.replace(/let LOCKED = \[[\s\S]*?\];/, newLine);
-    if (updated === raw) throw new Error('PATTERN_NOT_FOUND');
-    const newContentB64 = btoa(unescape(encodeURIComponent(updated)));
-    const putRes = await fetch(apiUrl, {
-      method: 'PUT',
-      headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: (willLock ? '잠금: ' : '해제: ') + title,
-        content: newContentB64,
-        sha: fileData.sha,
-        branch: REPO_BRANCH
-      })
-    });
-    if (!putRes.ok) throw new Error('WRITE_' + putRes.status);
-    LOCKED = newLocked;
-    renderApps();
-    showToast((willLock ? '잠갔어요.' : '열었어요.') + ' 1분 내로 반영돼요.');
+    let done = false;
+    for (let attempt = 0; attempt < 3 && !done; attempt++){
+      const getRes = await fetch(`${apiUrl}?ref=${REPO_BRANCH}`, {
+        headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github+json' }
+      });
+      if (!getRes.ok) throw new Error('READ_' + getRes.status);
+      const fileData = await getRes.json();
+      const raw = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
+      const match = raw.match(/let LOCKED = (\[[\s\S]*?\]);/);
+      if (!match) throw new Error('PATTERN_NOT_FOUND');
+      const currentLocked = JSON.parse(match[1]);
+      const willLock = !currentLocked.includes(title);
+      const newLocked = willLock ? [...currentLocked, title] : currentLocked.filter(t => t !== title);
+      const newLine = "let LOCKED = " + JSON.stringify(newLocked) + ";";
+      const updated = raw.replace(/let LOCKED = \[[\s\S]*?\];/, newLine);
+      const newContentB64 = btoa(unescape(encodeURIComponent(updated)));
+      const putRes = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: (willLock ? '잠금: ' : '해제: ') + title,
+          content: newContentB64,
+          sha: fileData.sha,
+          branch: REPO_BRANCH
+        })
+      });
+      if (putRes.ok){
+        LOCKED = newLocked;
+        renderApps();
+        showToast((willLock ? '잠갔어요.' : '열었어요.') + ' 1분 내로 반영돼요.');
+        done = true;
+      } else if (putRes.status === 409 && attempt < 2){
+        continue; // 그 사이 다른 저장이 끼어듦 - 최신 상태로 다시 시도
+      } else {
+        throw new Error('WRITE_' + putRes.status);
+      }
+    }
   } catch(err){
     console.error(err);
     if (String(err.message).includes('401') || String(err.message).includes('403')){
@@ -392,9 +406,13 @@ async function toggleLock(title){
       adminMode = false;
       btnAdmin.classList.remove('on');
       renderApps();
+    } else if (String(err.message).includes('409')){
+      showToast('충돌이 반복됐어요. 잠시 후 다시 눌러주세요.');
     } else {
       showToast('저장에 실패했어요 (' + err.message + ')');
     }
+  } finally {
+    lockBusy = false;
   }
 }
 </script>
