@@ -103,6 +103,24 @@
   .card .go svg{width:14px;height:14px;transition:transform .15s}
   .card:hover .go svg{transform:translateX(3px)}
 
+  .card.locked{opacity:.6}
+  .card.locked .tag{color:#d64545;background:rgb(214 69 69 / .12)}
+
+  #btn-admin{font-size:.86rem;line-height:1}
+  #btn-admin.on{background:var(--accent-soft);color:var(--accent)}
+
+  .admin-lock-btn{position:absolute;top:14px;left:14px;width:30px;height:30px;border-radius:999px;
+    border:1px solid var(--line);background:var(--paper);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;z-index:2;box-shadow:0 2px 6px rgb(20 22 31 / .12)}
+  .admin-lock-btn svg{width:15px;height:15px;stroke:var(--ink-dim)}
+  .card.locked .admin-lock-btn svg{stroke:#d64545}
+  .admin-lock-btn:hover{border-color:var(--accent)}
+
+  #clh-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);
+    color:var(--bg);padding:10px 18px;border-radius:999px;font-size:.86rem;font-weight:700;z-index:50;
+    box-shadow:0 8px 24px rgb(0 0 0 / .25);opacity:0;pointer-events:none;transition:opacity .2s}
+  #clh-toast.show{opacity:1}
+
   .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;
     border:1.5px dashed var(--line);border-radius:18px;padding:24px;text-align:center;color:var(--ink-dim)}
   .placeholder .icon-badge{background:transparent;border:1.5px dashed var(--line)}
@@ -131,6 +149,7 @@
     <div class="navlinks">
       <a href="#apps">앱 모음</a>
       <button type="button" id="btn-about">만든 이</button>
+      <button type="button" id="btn-admin" title="관리자 모드 (카드 잠금/해제)">🔒</button>
     </div>
   </div>
 </nav>
@@ -183,7 +202,9 @@ const ICONS = {
   stopwatch: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 13l3-2"/><path d="M9 2h6"/><path d="M12 2v3"/></svg>',
   link: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="7" cy="17" r="3.2"/><circle cx="17" cy="7" r="3.2"/><path d="M9.3 14.7l5.4-5.4"/></svg>',
   book: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H12v16H5.5C4.7 20 4 19.3 4 18.5v-13Z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H12v16h6.5c.8 0 1.5-.7 1.5-1.5v-13Z"/></svg>',
-  plus: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>'
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
+  lockClosed: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  lockOpen: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>'
 };
 const ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 
@@ -214,6 +235,11 @@ const APPS = [
   }
 ];
 
+// 🔒 잠긴 카드 제목 목록. 관리자 패널이 이 줄을 자동으로 고쳐 씁니다.
+// (직접 고치고 싶으면 이 배열에 카드 제목을 넣거나 빼고 커밋하면 돼요.)
+let LOCKED = ['<보기> 키워드 매핑 훈련'];
+let adminMode = false;
+
 const aboutModal = document.getElementById('about-modal');
 function openAbout(){ aboutModal.hidden = false; document.body.style.overflow = 'hidden'; }
 function closeAbout(){ aboutModal.hidden = true; document.body.style.overflow = ''; }
@@ -224,21 +250,27 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !aboutModa
 
 document.getElementById('app-count').textContent = APPS.length + '개';
 
-document.getElementById('app-grid').innerHTML = APPS.map((a, i) => `
-  <a class="card" href="${a.url}" ${a.inline ? `data-app-index="${i}"` : `target="_blank" rel="noopener"`}>
-    <span class="tag">${a.tag}</span>
+function renderApps(){
+  document.getElementById('app-grid').innerHTML = APPS.map((a, i) => {
+    const locked = LOCKED.includes(a.title);
+    return `
+  <a class="card ${locked ? 'locked' : ''}" href="${a.url}" ${a.inline ? `data-app-index="${i}"` : `target="_blank" rel="noopener"`}>
+    ${adminMode ? `<button type="button" class="admin-lock-btn" data-title="${a.title.replace(/"/g, '&quot;')}" title="${locked ? '잠금 해제하기' : '잠그기'}">${locked ? ICONS.lockClosed : ICONS.lockOpen}</button>` : ''}
+    <span class="tag">${locked ? '준비중' : a.tag}</span>
     <div class="icon-badge">${ICONS[a.icon]}</div>
     <h3>${a.title}</h3>
     <p>${a.desc}</p>
-    <div class="go">열어보기 ${ARROW}</div>
-  </a>
-`).join('') + `
+    <div class="go">${locked ? '준비 중이에요' : `열어보기 ${ARROW}`}</div>
+  </a>`;
+  }).join('') + `
   <div class="placeholder">
     <div class="icon-badge">${ICONS.plus}</div>
     <b>새 프로젝트 준비 중</b>
     <p>완성되면 이 자리에 추가할게요</p>
   </div>
 `;
+}
+renderApps();
 
 const appView = document.getElementById('app-view');
 const appViewFrame = document.getElementById('app-view-frame');
@@ -253,13 +285,118 @@ function closeAppView(){
   document.body.style.overflow = '';
 }
 document.getElementById('app-grid').addEventListener('click', e => {
+  const lockBtn = e.target.closest('.admin-lock-btn');
+  if (lockBtn){
+    e.preventDefault(); e.stopPropagation();
+    toggleLock(lockBtn.dataset.title);
+    return;
+  }
   const card = e.target.closest('[data-app-index]');
   if (!card) return;
+  const app = APPS[Number(card.dataset.appIndex)];
   e.preventDefault();
-  openAppView(APPS[Number(card.dataset.appIndex)].url);
+  if (LOCKED.includes(app.title) && !adminMode){
+    showToast('아직 준비 중이에요!');
+    return;
+  }
+  openAppView(app.url);
 });
 document.getElementById('app-view-back').addEventListener('click', closeAppView);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !appView.hidden) closeAppView(); });
+
+// ---- 관리자 모드: GitHub에 직접 커밋해서 잠금 상태를 전체 방문자에게 반영 ----
+const REPO_OWNER = 'yerang-k';
+const REPO_NAME = 'classical-lit-hub';
+const REPO_PATH = 'index.html';
+const REPO_BRANCH = 'main';
+const PAT_KEY = 'clh_admin_pat';
+
+const btnAdmin = document.getElementById('btn-admin');
+
+function showToast(msg){
+  let t = document.getElementById('clh-toast');
+  if (!t){
+    t = document.createElement('div');
+    t.id = 'clh-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+btnAdmin.addEventListener('click', e => {
+  if (e.shiftKey){
+    localStorage.removeItem(PAT_KEY);
+    adminMode = false;
+    btnAdmin.classList.remove('on');
+    renderApps();
+    showToast('저장된 토큰을 지웠어요.');
+    return;
+  }
+  if (adminMode){
+    adminMode = false;
+    btnAdmin.classList.remove('on');
+    renderApps();
+    return;
+  }
+  let pat = localStorage.getItem(PAT_KEY);
+  if (!pat){
+    pat = prompt('GitHub 개인 토큰(PAT)을 입력하세요.\n이 저장소(classical-lit-hub)에 대한 Contents 읽기/쓰기 권한이 있어야 해요.\n이 브라우저에만 저장되고 다른 곳으로 전송되지 않아요.');
+    if (!pat) return;
+    localStorage.setItem(PAT_KEY, pat.trim());
+  }
+  adminMode = true;
+  btnAdmin.classList.add('on');
+  renderApps();
+});
+
+async function toggleLock(title){
+  const pat = localStorage.getItem(PAT_KEY);
+  if (!pat){ showToast('토큰이 없어요. 관리자 모드를 다시 켜주세요.'); return; }
+  const willLock = !LOCKED.includes(title);
+  showToast(willLock ? '잠그는 중...' : '여는 중...');
+  try{
+    const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${REPO_PATH}`;
+    const getRes = await fetch(`${apiUrl}?ref=${REPO_BRANCH}`, {
+      headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github+json' }
+    });
+    if (!getRes.ok) throw new Error('READ_' + getRes.status);
+    const fileData = await getRes.json();
+    const raw = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
+    const newLocked = willLock ? [...LOCKED, title] : LOCKED.filter(t => t !== title);
+    const newLine = "let LOCKED = " + JSON.stringify(newLocked) + ";";
+    const updated = raw.replace(/let LOCKED = \[[\s\S]*?\];/, newLine);
+    if (updated === raw) throw new Error('PATTERN_NOT_FOUND');
+    const newContentB64 = btoa(unescape(encodeURIComponent(updated)));
+    const putRes = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: (willLock ? '잠금: ' : '해제: ') + title,
+        content: newContentB64,
+        sha: fileData.sha,
+        branch: REPO_BRANCH
+      })
+    });
+    if (!putRes.ok) throw new Error('WRITE_' + putRes.status);
+    LOCKED = newLocked;
+    renderApps();
+    showToast((willLock ? '잠갔어요.' : '열었어요.') + ' 1분 내로 반영돼요.');
+  } catch(err){
+    console.error(err);
+    if (String(err.message).includes('401') || String(err.message).includes('403')){
+      showToast('토큰이 잘못됐거나 권한이 없어요. 다시 입력해주세요.');
+      localStorage.removeItem(PAT_KEY);
+      adminMode = false;
+      btnAdmin.classList.remove('on');
+      renderApps();
+    } else {
+      showToast('저장에 실패했어요 (' + err.message + ')');
+    }
+  }
+}
 </script>
 
 </body>
